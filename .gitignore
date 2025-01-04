@@ -1,0 +1,12 @@
+# Frontend ignores
+/divy-frontend/node_modules
+/divy-frontend/build
+
+# Backend ignores
+/divy-backend/node_modules
+/divy-backend/logs
+
+# System ignores
+.DS_Store
+.idea/
+.vscode/

@@ -1,40 +1,60 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './ImageUpload.css';
 
-const ImageUpload = ({ setAnswer, setLoading }) => {
+function ImageUpload() {
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [answer, setAnswer] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleFileChange = (e) => {
-    setImage(e.target.files[0]);
+  // Handle file change
+  const onFileChange = (event) => {
+    setImage(event.target.files[0]);
   };
 
-  const handleSubmit = async () => {
+  // Handle form submission
+  const onSubmit = async (event) => {
+    event.preventDefault();
+
     if (!image) {
-      alert('Please upload an image.');
+      setError('Please select an image first');
       return;
     }
 
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', image);
+    const formData = new FormData();
+    formData.append('image', image);
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/process-image`, formData);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/process-image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       setAnswer(response.data.answer);
     } catch (error) {
-      alert('Error processing the image.');
+      setError('An error occurred while processing the image');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="image-upload">
-      <input type="file" accept="image/*" onChange={handleFileChange} />
-      <button onClick={handleSubmit}>Upload & Process</button>
+    <div className="upload-container">
+      <h1>Upload Image to Solve Problem</h1>
+      <form onSubmit={onSubmit}>
+        <input type="file" onChange={onFileChange} />
+        <button type="submit" disabled={loading}>Upload and Process</button>
+      </form>
+
+      {loading && <div>Loading...</div>}
+      {error && <div className="error">{error}</div>}
+      {answer && <div className="answer">{answer}</div>}
     </div>
   );
-};
+}
 
 export default ImageUpload;
